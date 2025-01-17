@@ -2,52 +2,49 @@ import { useState } from 'react'
 
 import './App.css'
 
+import Gallery  from './Gallery';
 function App() {
-  const [city, setCity] = useState('')
-  let [result,setResult]=useState('')
-  let [description,setDescription]=useState('')
-  let submitHandler=(e)=>{
-    e.preventDefault()
-    if (city.length===0){ return alert("Enter some city...")}
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=d885aa1d783fd13a55050afeef620fcb`).then(
-        response=> response.json()).then(
-          data => {
-            
-            
-            try {
-              const kelvin = data.main.temp;
-              const celcius = kelvin - 273.15;
-             
-            const {description} = data.weather[0];
-            setResult(`Temperature at ${city}\n  ${Math.round(celcius)}°C`);
-            setDescription(description)
-            } catch (error) {
-              alert("Enter Validation Location...")
-            }
-          })
+  const apiKey = "636e1481b4f3c446d26b8eb6ebfe7127";
+  let [search,setSearch]= useState('')
 
-          
-        .catch(err=>console.log(err))
-   setCity('')
+  
+  let [data,setData] = useState([])
+  const submitHandler = e =>{
+    e.preventDefault();
+    if (search.length){
+     
+    fetch(
+      `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=${search}&per_page=24&format=json&nojsoncallback=1`
+    )
+    .then(res=>res.json())
+    .then(response => {   
+     
+      setData(response.photos.photo)
+     
+    })
+    .catch(error => {
+      console.log(
+        "Encountered an error with fetching and parsing data",
+        error
+      );
+  })
+  setSearch('')
+}
+else{
+  alert("Enter you want images names...")
+}
   }
   return (
     <>
-      <div className="card">
-        <div className="card-body">
-          <h2 className="card-title text-center my-1 text-primary">
-            Weather App
-          </h2>
-          <div className="title-body">
-            <form onSubmit={submitHandler} className='d-flex mt-4'>
-              <input type="text"  value={city} onChange={(e)=>{setCity(e.target.value)}} className='form-control'/>
-              <input type="submit" value="Submit" className='btn btn-success'  />
-            </form>
-            <div className='result'>
-               <h3 className='mt-3 text-center '>{result}</h3> 
-                <h5 className='text-center mt-2 '>{description}</h5>
-            </div>
-          </div>
-        </div>
+      <div className="container">
+        <h3>Gallery Snapshot Images</h3>
+        <form className="d-flex" onSubmit={submitHandler}>
+          <input type="text" value={search} className='form-control' onChange={(e)=>{
+            setSearch(e.target.value)
+          }}/>
+          <input type="button" value="Submit" className='btn btn-primary'onClick={submitHandler}/>
+        </form>
+        {data.length>=1?<Gallery data={data}/>:<h4 className='m-3'>No Image Loaded</h4>}
       </div>
     </>
   )

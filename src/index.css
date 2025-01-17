@@ -1,0 +1,10 @@
+@import url("../node_modules/bootstrap/dist/css/bootstrap.min.css");
+body{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+}
+input[type=text]{
+  width:300px;
+}
